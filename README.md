@@ -868,9 +868,9 @@ https://mongoosejs.com/docs/guide.html
 
 ![homework](https://44.media.tumblr.com/aa5ddc2f7674efb9c1f4ce37365ad5dd/tumblr_ns2v6ccj521sg05bjo4_500.gif)
 
-*Opção 1*: Utilizando a base de dados criada no exercício que foi feito em casa, da semana 12, desenvolva uma nova API com pelo menos uma rota de cada: `POST`, `GET`, `PUT`, e `PATCH`, gravando e retornando informações do banco de dados. Testar a API utilizando o Postman, conforme fizemos em aula.
+*Opção 1*: Utilizando a base de dados criada no exercício que foi feito em casa, da semana 12, desenvolva uma nova API com pelo menos uma rota de cada: `POST`, `GET`, `PUT`, `PATCH` e `DELETE`, gravando e retornando informações do banco de dados. Testar a API utilizando o Postman, conforme fizemos em aula.
 
-*Opção 2*: Utilize uma api que você já tenha criado que tenha pelo menos uma rota de cada: `POST`, `GET`, `PUT`, e `PATCH` e gravar e retornar informações do banco de dados ao invés de fazer isso com arquivo. Testar a API utilizando o Postman, conforme fizemos em aula.
+*Opção 2*: Utilize uma api que você já tenha criado que tenha pelo menos uma rota de cada: `POST`, `GET`, `PUT`, `PATCH` e `DELETE` e gravar e retornar informações do banco de dados ao invés de fazer isso com arquivo. Testar a API utilizando o Postman, conforme fizemos em aula.
 
 *Opção 3*: Subi nesse repositório uma pasta `api-modelo-exercicio`. Você pode utilizar uma dessas apis já prontas, que gravam e recuperam registros de arquivo json, e passar a gravar e retornar informações do banco de dados. Testar a API utilizando o Postman, conforme fizemos em aula.
 
