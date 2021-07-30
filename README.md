@@ -705,13 +705,15 @@ const getTravelById = (req, res) => {
             res.status(500).send({ message: err.message })
         }
         if (travelFound) {
-            res.status(200).send(travelFound);
+            res.status(200).send(travelFound.toJSON({ virtuals: true }));
         } else {
             res.status(204).send();
         }
     })
 };
 ```
+Repare que ao utilizar o `travelFound.toJSON({ virtuals: true })` no retorno da nossa request, iremos retornar as propriedades do nosso schema, inclusive as virtuais, que no caso é o nosso ticket.
+
 * Agora, vamos no arquivo `passengersController`:
 
 1 - Comentamos (ou removemos) as linhas onde importamos a informação do `passengers.json` e `travels.json` e passamos a importar o schema `Passengers` e o schema `Travels`. Podemos também remover a importação do `fs` e do `utils` (inclusive podemos apagar essa pasta já que não iremos mais utilizar):
