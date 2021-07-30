@@ -598,7 +598,7 @@ Agora podemos testar se a nossa conexão foi feita com sucesso dando um `npm sta
 
 Com a conexão com o banco de dados feita na nossa api, podemos parar de consumir os arquivos json e fazer a comunicação direta com o banco de dados. Primeiro, vamos na pasta `models` onde estão nossos json e vamos criar dois novos arquivos: `passengers.js` e `travels.js`.
 
-* No nosso novo arquivo `passengers` vamos criar o que chamamos de schema:
+* No nosso novo arquivo `passengers` vamos criar o que chamamos de schema. Esse schema serve para validação e tipagem das propriedades do nosso documento:
 
 ```
 const mongoose = require('mongoose');
@@ -622,7 +622,7 @@ const passengers = mongoose.model('passengers', passengersSchema);
 // exportar o model para ser utilizado
 module.exports = passengers;
 ```
-* No nosso novo arquivo `travels.js` vamos também o schema:
+* No nosso novo arquivo `travels.js` vamos também criar o schema:
 
 ```
 const mongoose = require('mongoose');
@@ -641,12 +641,27 @@ const travelsSchema = new mongoose.Schema({
     versionKey: false
 });
 
+travelsSchema.virtual('ticket').
+    get(function () {
+        return this.id + '-' + this.destination.local;
+    }).
+    set(function (v) {
+        this.id = v.substr(0, v.indexOf('-'));
+        this.destination.local = v.substr(v.indexOf('-') + 1);
+    });
+
 // atribuindo o esquema a uma collection
 // estou definindo o nome da collection que irei salvar no banco
 const travels = mongoose.model('travels', travelsSchema);
 
 // exportar o model para ser utilizado
 module.exports = travels;
+```
+
+#### Propriedade Virtual
+
+Podemos reparar que no schema de travels temos uma **propriedade virtual** que chamamos de ticket. Essa propriedade virtual significa que temos essa propriedade, porém a mesma não está na nossa base de dados. No caso, ela serve para formatarmos alguma informação que temos do nosso objeto de travels, que no caso é o ticket dessa viagem, que é composto pelo id e o local de destino. Com isso criamos uma função de *get*, que traz o valor desse ticket (*id-local de destino*)  e criamos uma função de *set*, que nos permite receber um ticket (*id-local de destino*) e substituir nossas propriedades id e local de destino (que não são virtuais).
+
 ```
 ### Substituindo os arquivos json pelos schemas
 
