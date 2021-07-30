@@ -662,7 +662,6 @@ module.exports = travels;
 
 Podemos reparar que no schema de travels temos uma **propriedade virtual** que chamamos de ticket. Essa propriedade virtual significa que temos essa propriedade, porém a mesma não está na nossa base de dados. No caso, ela serve para formatarmos alguma informação que temos do nosso objeto de travels, que no caso é o ticket dessa viagem, que é composto pelo id e o local de destino. Com isso criamos uma função de *get*, que traz o valor desse ticket (*id-local de destino*)  e criamos uma função de *set*, que nos permite receber um ticket (*id-local de destino*) e substituir nossas propriedades id e local de destino (que não são virtuais).
 
-```
 ### Substituindo os arquivos json pelos schemas
 
 Agora que já temos os schemas das nossas duas collections definidos (passengers e travels), precisamos ir no `Controller` e parar de utilizar os arquivos json e passar a utilizar nossos schemas.
