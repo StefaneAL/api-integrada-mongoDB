@@ -1,3 +1,15 @@
+
+# Recados
+
+Foi uma honra ter participado da aula com vocês e espero que tenham aprendido bastante coisa. O conteúdo foi bem extenso, mas não se preocupem. Só seguir o passo a passo desse README que tudo vai se resolver no seu tempo. Não deixem te fazer o exercício dessa aula pois é de extrema importância. A descrição do exercício de casa está no final da página.
+
+**Atenção**: Peço que para quem estiver lendo esse recado, compartilhe no Slack de vocês para que todas tenham acesso a essas mensagens importantes abaixo:
+
+* Subi a pasta `api-projeto-mongo` com a api desse README já pronta (a que fizemos em aula) para utilizarem como modelo.
+* Caso você tenha tido qualquer problema para configurar/instalar o mongo na sua máquina, não se preocupe. Criei um banco de dados virtual e o configurei no projeto que está na pasta `api-projeto-mongo`. Basta ir no arquivo `app.js` e descomentar a conexão que é feita com esse banco virtual para você passar a usar ele ;) Já testei na minha máquina e está funcionando \o/ Então pode desenvolver normalmente na api. Quando for criar seu database collections e tudo mais, sem problemas, você desenvolvendo o código da api, ele já vai fazer isso para você automaticamente (todas essas criações) sem você precisar ir lá no banco pelo robo 3t. Se tiver qualquer dúvida ou problema me mande um email para eu poder ajudar: `vanessamjansen@gmail.com`. Ps: alterei a senha do banco virtual que eu havia passado para `reprograma12`, caso precise.
+
+-----
+
 # Integração do Banco de Dados Mongo com API
 
 ## API Base
@@ -577,8 +589,15 @@ mongoose.connect("mongodb://localhost:27017/reprograma-trip", { // no nosso caso
     useUnifiedTopology: true // define que vai utilizar o novo mecanismo de gerenciamento de conexao do driver do mongodb
 });
 ```
+**Atenção**: Caso você **não tenha um mongo na sua máquina rodando** e precise usar o banco virtual que criei, utilize o código abaixo ao invés do acima:
+```
+mongoose.connect("mongodb://alunareprograma:reprograma12@cluster0-shard-00-00.kuokc.mongodb.net:27017,cluster0-shard-00-01.kuokc.mongodb.net:27017,cluster0-shard-00-02.kuokc.mongodb.net:27017/reprograma-trip?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority", {
+    useNewUrlParser: true, // define que vai utilizar a nova url parse da string de conexao
+    useUnifiedTopology: true // define que vai utilizar o novo mecanismo de gerenciamento de conexao do driver do mongodb
+});
+```
 
-Para que consigamos ter uma visibilidade de erros caso a conexão com o banco de dados falhe, recomendamos colocar essas tratativas:
+Agora que temos a conexão feita pelo `mongoose.connect` podemos colocar as tratativas abaixo, para que consigamos ter uma visibilidade de erros caso a conexão com o banco de dados falhe:
 
 ```
 //Conexao com o mongo
@@ -685,11 +704,12 @@ const getAllTravels = (req, res) => {
     travels.find(function (err, travelsFound) {
         if (err) {
             res.status(500).send({ message: err.message })
-        }
-        if (travelsFound && travelsFound.length > 0) {
-            res.status(200).send(travelsFound);
         } else {
-            res.status(204).send();
+            if (travelsFound && travelsFound.length > 0) {
+                res.status(200).send(travelsFound);
+            } else {
+                res.status(204).send();
+            }
         }
     })
 };
@@ -703,11 +723,12 @@ const getTravelById = (req, res) => {
     travels.findOne({ id: resquestId }, function (err, travelFound) {
         if (err) {
             res.status(500).send({ message: err.message })
-        }
-        if (travelFound) {
-            res.status(200).send(travelFound.toJSON({ virtuals: true }));
         } else {
-            res.status(204).send();
+            if (travelFound) {
+                res.status(200).send(travelFound.toJSON({ virtuals: true }));
+            } else {
+                res.status(204).send();
+            }
         }
     })
 };
@@ -744,29 +765,30 @@ const createPassenger = (req, res) => {
     travels.findOne({ id: requiredId }, function (err, travelFound) { // achando a viagem solicitada na requisição
         if (err) {
             res.status(500).send({ message: err.message })
-        }
-        if (travelFound) { // verifico primeiro se a viagem existe na base de dados
-            let newPassenger = new passengers(passenger)
-            newPassenger.save(function (err) { // crio novo passageiro na collection de passageiros
-                if (err) {
-                    // se deu erro ao salvar o passageiro na collection de passageiros
-                    res.status(500).send({ message: err.message })
-                } else {
-                    // se deu certo salvar o passageiro na collection de passageiros vou salvar na viagem tambem
-                    travelFound.passengersInfos.push(passenger); // adicionando um passageiro à viagem solicitada
-                    travels.updateOne({ id: requiredId }, { $set: { passengersInfos: travelFound.passengersInfos } }, function (err) { // atualizando os passageiros na viagem no banco de dados
-                        if (err) {
-                            res.status(500).send({ message: err.message }) //responder com o erro
-                        }
-                        res.status(201).send({
-                            message: "Passageiro adicionado com sucesso!",
-                            ...travelFound.toJSON()
-                        });
-                    });
-                }
-            })
         } else {
-            res.status(404).send({ message: "Viagem não encontrada para inserir passageiro!" });
+            if (travelFound) { // verifico primeiro se a viagem existe na base de dados
+                let newPassenger = new passengers(passenger)
+                newPassenger.save(function (err) { // crio novo passageiro na collection de passageiros
+                    if (err) {
+                        // se deu erro ao salvar o passageiro na collection de passageiros
+                        res.status(500).send({ message: err.message })
+                    } else {
+                        // se deu certo salvar o passageiro na collection de passageiros vou salvar na viagem tambem
+                        travelFound.passengersInfos.push(passenger); // adicionando um passageiro à viagem solicitada
+                        travels.updateOne({ id: requiredId }, { $set: { passengersInfos: travelFound.passengersInfos } }, function (err) { // atualizando os passageiros na viagem no banco de dados
+                            if (err) {
+                                res.status(500).send({ message: err.message }) //responder com o erro
+                            }
+                            res.status(201).send({
+                                message: "Passageiro adicionado com sucesso!",
+                                ...travelFound.toJSON()
+                            });
+                        });
+                    }
+                })
+            } else {
+                res.status(404).send({ message: "Viagem não encontrada para inserir passageiro!" });
+            }
         }
     })
 };
@@ -780,16 +802,18 @@ const replacePassenger = (req, res) => {
     passengers.findOne({ id: requiredId }, function (err, passengerFound) {
         if (err) {
             res.status(500).send({ message: err.message })
-        }
-        if (passengerFound) {
-            passengers.updateOne({ id: requiredId }, { $set: req.body }, function (err) {
-                if (err) {
-                    res.status(500).send({ message: err.message })
-                }
-                res.status(200).send({ message: "Registro alterado com sucesso" })
-            })
         } else {
-            res.status(404).send({ message: "Não há registro para ser atualizado com esse id" });
+            if (passengerFound) {
+                passengers.updateOne({ id: requiredId }, { $set: req.body }, function (err) {
+                    if (err) {
+                        res.status(500).send({ message: err.message })
+                    } else {
+                        res.status(200).send({ message: "Registro alterado com sucesso" })
+                    }
+                })
+            } else {
+                res.status(404).send({ message: "Não há registro para ser atualizado com esse id" });
+            }
         }
     })
 };
@@ -809,8 +833,9 @@ const updateName = (req, res) => {
                 passengers.updateOne({ id: requiredId }, { $set: { name: newName } }, function (err) {
                     if (err) {
                         res.status(500).send({ message: err.message })
+                    } else {
+                        res.status(200).send({ message: "Nome alterado com sucesso" })
                     }
-                    res.status(200).send({ message: "Nome alterado com sucesso" })
                 })
             } else {
                 res.status(404).send({ message: "Não há registro para ter o nome atualizado com esse id" });
@@ -837,11 +862,12 @@ const deletePassenger = (req, res) => {
                             message: err.message,
                             status: "FAIL"
                         })
+                    } else {
+                        res.status(200).send({
+                            message: 'Passageiro removido com sucesso',
+                            status: "SUCCESS"
+                        })
                     }
-                    res.status(200).send({
-                        message: 'Passageiro removido com sucesso',
-                        status: "SUCCESS"
-                    })
                 })
             } else {
                 res.status(404).send({ message: 'Não há passageiro para ser removido com esse id' })
