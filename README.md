@@ -8,6 +8,8 @@ Foi uma honra ter participado da aula com vocês e espero que tenham aprendido b
 * Subi a pasta `api-projeto-mongo` com a api desse README já pronta (a que fizemos em aula) para utilizarem como modelo.
 * Caso você tenha tido qualquer problema para configurar/instalar o mongo na sua máquina, não se preocupe. Criei um banco de dados virtual e o configurei no projeto que está na pasta `api-projeto-mongo`. Basta ir no arquivo `app.js` e descomentar a conexão que é feita com esse banco virtual para você passar a usar ele ;) Já testei na minha máquina e está funcionando \o/ Então pode desenvolver normalmente na api. Quando for criar seu database collections e tudo mais, sem problemas, você desenvolvendo o código da api, ele já vai fazer isso para você automaticamente (todas essas criações) sem você precisar ir lá no banco pelo robo 3t. Se tiver qualquer dúvida ou problema me mande um email para eu poder ajudar: `vanessamjansen@gmail.com`. Ps: alterei a senha do banco virtual que eu havia passado para `reprograma12`, caso precise.
 
+Ps: Apenas para alinhar, na quarta-feira vou apagar o login e senha da url de conexão com o **mongo online** pois é uma *péssima prática* deixar exposto assim como deixei, conforme comentei em aula. Mas precisei deixar assim para que quem precisar consiga realizar a conexão.
+
 -----
 
 # Integração do Banco de Dados Mongo com API
