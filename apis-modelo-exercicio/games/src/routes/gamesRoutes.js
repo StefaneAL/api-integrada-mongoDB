@@ -2,17 +2,13 @@ const express = require("express")
 const router = express.Router()
 const controller = require("../controllers/gamesController")
 
-// post - criacao
-router.post("/", controller.createGame)
+router.post("/create", controller.createGame);
 
-// delete - remoção
-router.delete("/:id", controller.deleteGame)
+router.delete("/:id/del", controller.deleteGame)
 
-// put e patch - alteração
-router.put("/:id", controller.updateGame)
+router.put("/:id/update", controller.updateGame)
 router.patch("/:id/liked", controller.updateLiked)
 
-// get - recuperação
 router.get("/", controller.getAllGames)
 router.get("/:id", controller.getGame)
 

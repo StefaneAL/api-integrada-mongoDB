@@ -1,130 +1,172 @@
-const games = require("../models/games.json")
-const fs = require("fs")
+const games = require("../models/games");
+
 
 const createGame = (req, res) => {
-    const { id, title, launchYear, liked, consoles, stages } = req.body
-    games.push({ id, title, launchYear, liked, consoles, stages })
-    fs.writeFile("./src/models/games.json", JSON.stringify(games), 'utf8', function (err) { // gravando novo game no array de games
-        if (err) {
-            res.status(500).send({ message: err })
-        } else {
-            console.log("Arquivo atualizado com sucesso!")
-            const gameFound = games.find(game => game.id == id) // recupero o game que foi criado no array de games      
-            res.status(200).send(gameFound)
+    const { 
+        id, 
+        title, 
+        launchYear, 
+        consoles,  
+        liked,
+        stages 
+    } = req.body
+
+
+    let newGame = new games({ 
+        id, 
+        title, 
+        launchYear, 
+        consoles,  
+        liked,
+        stages 
+    })
+    
+    newGame.save(function(err){
+        if(err){
+            res.status(500).send({message: err.message})
+        }else{
+            res.status(201).send("Jogo adicionado com sucesso!")
+        }
+        
+    })
+}
+
+//ok
+const deleteGame = (req, res) => {
+    const gameId = req.params.id
+    games.findOne({ id: gameId }, function(err,gameFound){
+        if(err){
+            res.status(500).send({message: err.message})
+        }else{
+            if(gameFound){
+                games.deleteOne({id: gameId}, function(err){
+                    if(err){
+                        res.status(500).send({
+                            message: err.message,
+                            status: "FAIL"
+                        })
+                    }else{
+                        res.status(200).send({
+                            message: "Jogo removido com sucesso",
+                            status: "SUCCESS"
+                        })
+
+                    }
+                })
+            }else{
+                res.status(404).send({
+                    message: "Não há jogo para ser removido com esse id"
+                })
+            }
+        }
+
+    })
+}
+
+//ok
+const updateGame = (req, res) => {
+    const gameId = req.params.id
+    games.findOne({id: gameId}, function(err,gameFound){
+        if(err){
+            res.status(500).send({
+                message: err.message
+            })
+        }else{
+            if(gameFound){
+                games.updateOne(
+                    {id: gameId},
+                    {$set: req.body},
+                    function(err){
+                        if(err){
+                            res.status(500).send({
+                                message: err.message
+                            })  
+                        }else{
+                            res.status(200).send({
+                                message: "Campo alterado com sucesso"
+                            })
+                        }
+                    })
+            }else{
+                res.status(404).send({
+                    message: "Game não encontrado para ser atualizado"
+                })
+            }
         }
     })
 }
 
-const deleteGame = (req, res) => {
-    try {
-        const gameId = req.params.id
-        const gameFound = games.find(game => game.id == gameId) // encontro o game pelo id
-        const gameIndex = games.indexOf(gameFound) // identifico o índice do game no meu array
-
-        if (gameIndex >= 0) { // verifico se o game existe no array de games
-            games.splice(gameIndex, 1) // removo o game pelo índice
-            fs.writeFile("./src/models/games.json", JSON.stringify(games), 'utf8', function (err) {
-                if (err) {
-                    res.status(500).send({ message: err })
-                } else {
-                    console.log("Game deletado com sucesso do arquivo!")
-                    res.sendStatus(204)
-                }
-            })
-        } else {
-            res.status(404).send({ message: "Game não encontrado para ser deletado" })
-        }
-
-    } catch (err) {
-        console.log(err)
-        res.status(500).send({ message: "Erro ao deletar o game" })
-    }
-}
-
-const updateGame = (req, res) => {
-    try {
-        const gameId = req.params.id
-        const gameToUpdate = req.body //Pego o corpo da requisição com as alterações
-
-        const gameFound = games.find(game => game.id == gameId) // separo o game que irei atualizar
-        const gameIndex = games.indexOf(gameFound) // separo o indice do game no array de games
-
-        if (gameIndex >= 0) { // verifico se o game existe no array de games
-            games.splice(gameIndex, 1, gameToUpdate) // atualizando o array de games com os novos dados
-
-            fs.writeFile("./src/models/games.json", JSON.stringify(games), 'utf8', function (err) {
-                if (err) {
-                    res.status(500).send({ message: err })
-                } else {
-                    console.log("Arquivo atualizado com sucesso!")
-                    const gameUpdated = games.find(game => game.id == gameId) // separo o game que modifiquei no array
-                    res.status(200).send(gameUpdated) // envio o game modificado como resposta
-                }
-            })
-        } else {
-            res.status(404).send({ message: "Game não encontrado para ser atualizado" })
-        }
-
-    } catch (err) {
-        res.status(500).send({ message: err })
-    }
-}
-
+//PATH
 const updateLiked = (req, res) => {
-    try {
-        const gameId = req.params.id
-        const liked = req.body.liked
-        const gameFound = games.find(game => game.id == gameId) // encontrando o game
-        const gameIndex = games.indexOf(gameFound) // identifico o índice do game no meu array
+    const gameId = req.params.id
+    let likedReq = req.body.liked
 
-        if (gameIndex >= 0) { // verifico se o game existe no array de games
-            gameFound.liked = liked //atualizamos o objeto com o novo nome
-            games.splice(gameIndex, 1, gameFound) // atualizando o array de games com o game atualizado
-
-            fs.writeFile("./src/models/games.json", JSON.stringify(games), 'utf8', function (err) {
-                if (err) {
-                    res.status(500).send({ message: err })
-                } else {
-                    console.log("Arquivo atualizado com sucesso!")
-                    const gamepdated = games.find(game => game.id == gameId) // separo o game que modifiquei no array
-                    res.status(200).send(gamepdated) // envio o game modificado como resposta
+    games.findOne(
+        {id:gameId}, 
+        function(err, gameFound){
+            if(err){
+                res.status(500).send({
+                    message: err.message
+                })
+            }else{
+                if(gameFound){
+                    games.updateOne(
+                        {id: gameId},
+                        {$set: {liked: likedReq}},
+                        function(err){
+                            if(err){
+                                res.status(500).send({
+                                    message: err.message
+                                })
+                            }else{
+                                res.status(200).send({
+                                    message: "Arquivo atualizado com sucesso!"
+                                })
+                            }
+                           
+                        }
+                    )   
+                }else{
+                    res.status(404).send({
+                        message: "Game não encontrado para registrar o like."
+                    })
                 }
-            })
-        } else {
-            res.status(404).send({ message: "Game não encontrado para registrar o like." })
+            }
         }
-
-    } catch (err) {
-        res.status(500).send({ message: err })
-    }
+    )
 }
-
+   
+//ok
 const getAllGames = (req, res) => {
-    const console = req.query.console // puxamos a informação de console (ex: nintendo64) da nossa query string
-    const beforeLaunchYear = req.query.beforeLaunchYear // puxamos a informação de ano de lançamento que queremos usar para filtrar antes do ano tal, por exemplo, poderia ser o valor 2000
-    let allgames = games
-    if (console) { // se eu tiver passado a query string com o artista na hora de fazer a request...
-        allgames = games.filter(game => game.consoles.includes(console)) // encontro todas as games do artista
-    }
-    if (beforeLaunchYear) {
-        const gameAfterLaunchYear = games.filter(game => game.launchYear > beforeLaunchYear) // encontro todas as games lançadas após o ano que utilizei no filtro.
-        if (console) { // o filtro de animal foi informado?
-            allgames = gameAfterLaunchYear.filter(game => allgames.includes(game)) // encontro a interseção das games filtradas por artista e ano de lançamento posterior
-        } else {
-            allgames = gameAfterLaunchYear
+
+    games.find(function(err, gameFound){
+        if(err){
+            res.status(500).send({message: err.message})
         }
-    }
-    res.status(200).send(allgames) // retorna todas as games filtradas ou nao
+        if(gameFound && gameFound){
+            res.status(200).send(gameFound)
+        }else{
+            res.status(204).send();
+        }
+    })
+
 }
 
+// ok
 const getGame = (req, res) => {
     const gameId = req.params.id
-    const gameFound = games.find(game => game.id == gameId)
-    if (gameFound) {
-        res.status(200).send(gameFound)
-    } else {
-        res.status(404).send({ message: "Game não encontrado" })
-    }
+
+    games.findOne({id: gameId},function (err, gameFound){
+        if(err){
+            res.status(500).send({message: err.message});
+        }else{
+           if(gameFound){
+               res.status(200).send(gameFound);
+           }else{
+               res.status(204).send({ message: "Game não encontrado" });
+           }
+        }
+    })
 }
 
 module.exports = {
