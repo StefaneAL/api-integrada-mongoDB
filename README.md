@@ -214,7 +214,7 @@ const updateGame = (req, res) => {
     })
 }
 ```
-     
+---
  
 * ### Por ultimo, porem não menos importante, o `{PATCH}` 
     *que deu uma dorzinha de cabeça mas eu consegui um socorro nos fóruns da vida*
